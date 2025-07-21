@@ -12,3 +12,9 @@ type User struct {
 	PhoneNumber string    `json:"phonenumber"`
 	CreatedAt   time.Time `json:"createdat"`
 }
+
+type Body struct {
+	UserID   string `gorm:"unique" json:"userid"`
+	Email    string `gorm:"unique" json:"email"`
+	Password string `json:"password"`
+}
