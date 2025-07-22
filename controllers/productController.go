@@ -1,63 +1,120 @@
 package controllers
 
 import (
-	"encoding/json"
 	"net/http"
 
+	"github.com/Richard-Owen-Tangrady/richard/initializers"
 	"github.com/Richard-Owen-Tangrady/richard/models"
-	"github.com/gorilla/mux"
+	"github.com/gin-gonic/gin"
 )
 
-var product []models.Product
+func GetProducts(c *gin.Context) {
+	var products []models.Product
+	result := initializers.DB.Find(&products)
 
-func GetProducts(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(product)
-}
+	if result.Error != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Failed to find products",
+		})
+		return
+	}
 
-func GetProduct(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-	param := mux.Vars(r)
-	for _, prod := range product {
-		if prod.ProductID == param["productid"] {
-			json.NewEncoder(w).Encode(prod)
-			return
-		}
+	if result != nil {
+		c.JSON(http.StatusOK, gin.H{
+			"product": products,
+		})
+		return
 	}
 }
 
-func CreateProduct(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-	var prod models.Product
-	_ = json.NewDecoder(r.Body).Decode(&prod)
-	product = append(product, prod)
-	json.NewEncoder(w).Encode(prod)
+func GetProduct(c *gin.Context) {
+	var product models.Product
+	result := initializers.DB.First(&product, "product=?", product.ProductID)
+
+	if result.Error != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Failed to find product",
+		})
+		return
+	}
+
+	if result != nil {
+		c.JSON(http.StatusOK, gin.H{
+			"product": product,
+		})
+		return
+	}
 }
 
-func DeleteProduct(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-	param := mux.Vars(r)
-	for index, item := range product {
-		if item.ProductID == param["productid"] {
-			product = append(product[:index], product[index+1:]...)
-			break
-		}
+func CreateProduct(c *gin.Context) {
+	var body models.BodyP
+
+	if c.Bind(&body) != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Failed to read body",
+		})
+		return
 	}
-	json.NewEncoder(w).Encode(product)
+
+	product := models.Product{ProductID: body.ProductID, Name: body.Name}
+	result := initializers.DB.Create(&product)
+
+	if result.Error != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Failed to create product",
+		})
+		return
+	}
+
+	if result != nil {
+		c.JSON(http.StatusOK, gin.H{
+			"message": "product created",
+		})
+		return
+	}
+
 }
 
-func UpdateProduct(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-	param := mux.Vars(r)
-	for index, item := range product {
-		if item.ProductID == param["productid"] {
-			product = append(product[:index], product[index+1:]...)
-			var prod models.Product
-			_ = json.NewDecoder(r.Body).Decode(&prod)
-			prod.ProductID = param["id"]
-			product = append(product, prod)
-			json.NewEncoder(w).Encode(prod)
-			return
-		}
+func DeleteProduct(c *gin.Context) {
+	var product models.Product
+	result := initializers.DB.Delete(&models.Product{}, "product=?", product.ProductID)
+
+	if result.Error != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Failed to delete product",
+		})
+		return
 	}
+
+	if result != nil {
+		c.JSON(http.StatusOK, gin.H{
+			"message": "product deleted",
+		})
+		return
+	}
+}
+
+func UpdateProduct(c *gin.Context) {
+	var body models.BodyP
+
+	if c.Bind(&body) != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Failed to read body",
+		})
+		return
+	}
+
+	var product models.Product
+	initializers.DB.First(&product, "product=?", product.ProductID)
+
+	initializers.DB.Model(&product).Updates(models.Product{
+		ProductID: body.ProductID,
+		Name:      body.Name,
+		Quantity:  body.Quantity,
+		Price:     body.Price,
+	})
+
+	c.JSON(http.StatusOK, gin.H{
+		"product": product,
+	})
 }
