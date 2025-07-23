@@ -19,17 +19,17 @@ func GetProducts(c *gin.Context) {
 		return
 	}
 
-	if result != nil {
-		c.JSON(http.StatusOK, gin.H{
-			"product": products,
-		})
-		return
-	}
+	c.JSON(http.StatusOK, gin.H{
+		"products": products,
+	})
+
 }
 
 func GetProduct(c *gin.Context) {
+	productid := c.Param("product_id")
+
 	var product models.Product
-	result := initializers.DB.First(&product, "product=?", product.ProductID)
+	result := initializers.DB.First(&product, productid)
 
 	if result.Error != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -38,16 +38,14 @@ func GetProduct(c *gin.Context) {
 		return
 	}
 
-	if result != nil {
-		c.JSON(http.StatusOK, gin.H{
-			"product": product,
-		})
-		return
-	}
+	c.JSON(http.StatusOK, gin.H{
+		"product": product,
+	})
+
 }
 
 func CreateProduct(c *gin.Context) {
-	var body models.BodyP
+	var body models.ProductCreateRequest
 
 	if c.Bind(&body) != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -56,7 +54,7 @@ func CreateProduct(c *gin.Context) {
 		return
 	}
 
-	product := models.Product{ProductID: body.ProductID, Name: body.Name}
+	product := models.Product{ProductID: body.ProductID, Name: body.Name, Quantity: body.Quantity, Price: body.Price}
 	result := initializers.DB.Create(&product)
 
 	if result.Error != nil {
@@ -66,18 +64,16 @@ func CreateProduct(c *gin.Context) {
 		return
 	}
 
-	if result != nil {
-		c.JSON(http.StatusOK, gin.H{
-			"message": "product created",
-		})
-		return
-	}
+	c.JSON(http.StatusOK, gin.H{
+		"product": product,
+	})
 
 }
 
 func DeleteProduct(c *gin.Context) {
-	var product models.Product
-	result := initializers.DB.Delete(&models.Product{}, "product=?", product.ProductID)
+	productid := c.Param("product_id")
+
+	result := initializers.DB.Delete(&models.Product{}, productid)
 
 	if result.Error != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -86,16 +82,13 @@ func DeleteProduct(c *gin.Context) {
 		return
 	}
 
-	if result != nil {
-		c.JSON(http.StatusOK, gin.H{
-			"message": "product deleted",
-		})
-		return
-	}
+	c.Status(200)
+
 }
 
 func UpdateProduct(c *gin.Context) {
-	var body models.BodyP
+	productid := c.Param("product_id")
+	var body models.ProductCreateRequest
 
 	if c.Bind(&body) != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -105,7 +98,7 @@ func UpdateProduct(c *gin.Context) {
 	}
 
 	var product models.Product
-	initializers.DB.First(&product, "product=?", product.ProductID)
+	initializers.DB.First(&product, productid)
 
 	initializers.DB.Model(&product).Updates(models.Product{
 		ProductID: body.ProductID,
