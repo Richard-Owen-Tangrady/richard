@@ -21,12 +21,12 @@ func main() {
 	r.GET("/validate", middleware.RequireAuth, controllers.Validate)
 
 	r.GET("/getproducts", controllers.GetProducts)
-	r.GET("/getproduct/:productid", controllers.GetProduct)
+	r.GET("/getproduct/:product_id", controllers.GetProduct)
 	r.POST("/createproduct", controllers.CreateProduct)
-	r.PUT("/updateproduct/:productid", controllers.UpdateProduct)
-	r.DELETE("/deleteproduct", controllers.DeleteProduct)
+	r.PUT("/updateproduct/:product_id", controllers.UpdateProduct)
+	r.DELETE("/deleteproduct/:product_id", controllers.DeleteProduct)
 
-	r.GET("/cart/:cartid", controllers.GetCart)
+	r.GET("/cart/:cart_id", controllers.GetCart)
 	r.POST("/cart", controllers.CreateCart)
 
 	r.Run()

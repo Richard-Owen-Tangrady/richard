@@ -28,18 +28,16 @@ func GetCart(c *gin.Context) {
 }
 
 func CreateCart(c *gin.Context) {
-	var cart models.Cart
-	var pro models.Product
-	var user models.User
+	var body models.CreteCart
 
-	if c.Bind(&cart) != nil {
+	if c.Bind(&body) != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": "Failed to read body",
 		})
 		return
 	}
 
-	cart = models.Cart{CartID: cart.CartID, UserID: user.UserID, ProductId: pro.ProductID, Quantity: cart.Quantity}
+	cart := models.Cart{CartID: body.CartID}
 	result := initializers.DB.Create(&cart)
 
 	if result.Error != nil {

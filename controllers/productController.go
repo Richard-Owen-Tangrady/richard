@@ -73,9 +73,19 @@ func CreateProduct(c *gin.Context) {
 func DeleteProduct(c *gin.Context) {
 	productid := c.Param("product_id")
 
-	result := initializers.DB.Delete(&models.Product{}, productid)
+	var product models.Product
+	result := initializers.DB.First(&product, productid)
 
 	if result.Error != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Failed to find product",
+		})
+		return
+	}
+
+	deleteResult := initializers.DB.Delete(&product, productid)
+
+	if deleteResult == nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": "Failed to delete product",
 		})

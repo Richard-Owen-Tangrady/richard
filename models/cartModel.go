@@ -6,3 +6,7 @@ type Cart struct {
 	ProductId string `json:"product_id"`
 	Quantity  int    `json:"quantity"`
 }
+
+type CreteCart struct {
+	CartID string `gorm:"unique" json:"cart_id"`
+}
