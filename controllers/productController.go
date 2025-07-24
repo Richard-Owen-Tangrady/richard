@@ -6,6 +6,7 @@ import (
 	"github.com/Richard-Owen-Tangrady/richard/initializers"
 	"github.com/Richard-Owen-Tangrady/richard/models"
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 )
 
 func GetProducts(c *gin.Context) {
@@ -54,7 +55,16 @@ func CreateProduct(c *gin.Context) {
 		return
 	}
 
-	product := models.Product{ProductID: body.ProductID, Name: body.Name, Quantity: body.Quantity, Price: body.Price}
+	newId := uuid.New().String()
+
+	product := models.Product{
+		ProductID:   newId,
+		Name:        body.Name,
+		Quantity:    body.Quantity,
+		Price:       body.Price,
+		Description: "",
+	}
+
 	result := initializers.DB.Create(&product)
 
 	if result.Error != nil {
@@ -108,14 +118,34 @@ func UpdateProduct(c *gin.Context) {
 	}
 
 	var product models.Product
-	initializers.DB.First(&product, productid)
+	result := initializers.DB.First(&product, productid)
 
-	initializers.DB.Model(&product).Updates(models.Product{
-		ProductID: body.ProductID,
-		Name:      body.Name,
-		Quantity:  body.Quantity,
-		Price:     body.Price,
-	})
+	if result.Error != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Failed to find product",
+		})
+		return
+	}
+
+	update := make(map[string]interface{})
+	if body.Name != "" {
+		update["Name"] = body.Name
+	}
+	if body.Quantity != 0 {
+		update["Quantity"] = body.Quantity
+	}
+	if body.Price != 0.0 {
+		update["Price"] = body.Price
+	}
+
+	updateResult := initializers.DB.Model(&product).Updates(update)
+
+	if updateResult.Error != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Failed to update product",
+		})
+		return
+	}
 
 	c.JSON(http.StatusOK, gin.H{
 		"product": product,

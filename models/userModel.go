@@ -3,7 +3,7 @@ package models
 import "time"
 
 type User struct {
-	UserID      string    `gorm:"unique" json:"user_id"`
+	UserID      string    `gorm:"primaryKey" json:"user_id"`
 	Email       string    `gorm:"unique" json:"email"`
 	Password    string    `json:"password"`
 	FirstName   string    `json:"first_name"`
@@ -14,7 +14,6 @@ type User struct {
 }
 
 type Body struct {
-	UserID   string `gorm:"unique" json:"user_id"`
-	Email    string `gorm:"unique" json:"email"`
-	Password string `json:"password"`
+	Email    string `gorm:"unique" json:"email" binding:"required,email"`
+	Password string `json:"password" binding:"required,min=6"`
 }

@@ -37,7 +37,7 @@ func CreateCart(c *gin.Context) {
 		return
 	}
 
-	cart := models.Cart{CartID: body.CartID}
+	cart := models.Cart{CartID: body.CartID, User: body.User, Product: body.Product, Quantity: body.Quantity}
 	result := initializers.DB.Create(&cart)
 
 	if result.Error != nil {

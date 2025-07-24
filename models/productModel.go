@@ -1,7 +1,7 @@
 package models
 
 type Product struct {
-	ProductID   string `gorm:"unique" json:"product_id"`
+	ProductID   string `gorm:"primaryKey" json:"product_id"`
 	Name        string `json:"name"`
 	Quantity    int    `json:"quantity"`
 	Price       int    `json:"price"`
@@ -9,8 +9,7 @@ type Product struct {
 }
 
 type ProductCreateRequest struct {
-	ProductID string `gorm:"unique" json:"product_id"`
-	Name      string `json:"name"`
-	Quantity  int    `json:"quantity"`
-	Price     int    `json:"price"`
+	Name     string `json:"name"`
+	Quantity int    `json:"quantity"`
+	Price    int    `json:"price"`
 }

@@ -37,4 +37,5 @@ func ConnectToDb() {
 func SyncDataBase() {
 	DB.AutoMigrate(&models.User{})
 	DB.AutoMigrate(&models.Product{})
+	DB.AutoMigrate(&models.Cart{})
 }
