@@ -2,10 +2,12 @@ package controllers
 
 import (
 	"net/http"
+	"time"
 
 	"github.com/Richard-Owen-Tangrady/richard/initializers"
 	"github.com/Richard-Owen-Tangrady/richard/models"
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 )
 
 func GetCart(c *gin.Context) {
@@ -16,7 +18,7 @@ func GetCart(c *gin.Context) {
 
 	if result.Error != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "Failed to find products",
+			"error": "Failed to find cart",
 		})
 		return
 	}
@@ -37,12 +39,40 @@ func CreateCart(c *gin.Context) {
 		return
 	}
 
-	cart := models.Cart{CartID: body.CartID, User: body.User, Product: body.Product, Quantity: body.Quantity}
+	var user models.User
+	if initializers.DB.First(&user, "user_id=?", body.UserRefer).Error != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Failed to find user",
+		})
+		return
+	}
+
+	var product models.Product
+	if initializers.DB.First(&product, "product_id=?", body.ProductRefer).Error != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Failed to find product",
+		})
+		return
+	}
+
+	newId := uuid.New().String()
+
+	cart := models.Cart{
+		CartID:       newId,
+		UserRefer:    body.UserRefer,
+		User:         user,
+		ProductRefer: body.ProductRefer,
+		Product:      product,
+		Quantity:     body.Quantity,
+		CreatedAt:    time.Now(),
+	}
+
 	result := initializers.DB.Create(&cart)
 
 	if result.Error != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "Failed to create product",
+			"error":   "Failed to create cart",
+			"details": result.Error.Error(),
 		})
 		return
 	}
@@ -51,4 +81,29 @@ func CreateCart(c *gin.Context) {
 		"cart": cart,
 	})
 
+}
+
+func DeleteProductCart(c *gin.Context) {
+	cartid := c.Param("cart_id")
+
+	var cart models.Cart
+	result := initializers.DB.First(&cart, cartid)
+
+	if result.Error != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Failed to create cart",
+		})
+		return
+	}
+
+	deleteResult := initializers.DB.Delete(&cart, cartid)
+
+	if deleteResult == nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Failed to delete product",
+		})
+		return
+	}
+
+	c.Status(200)
 }

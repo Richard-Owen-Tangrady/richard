@@ -37,5 +37,8 @@ func ConnectToDb() {
 func SyncDataBase() {
 	DB.AutoMigrate(&models.User{})
 	DB.AutoMigrate(&models.Product{})
-	DB.AutoMigrate(&models.Cart{})
+	err := DB.AutoMigrate(&models.Cart{})
+	if err != nil {
+		log.Fatalf("Failed to auto-migrate Cart table: %v", err)
+	}
 }
