@@ -30,7 +30,7 @@ func GetCart(c *gin.Context) {
 }
 
 func CreateCart(c *gin.Context) {
-	var body models.CreteCart
+	var body models.CartCreateRequest
 
 	if c.Bind(&body) != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -98,12 +98,15 @@ func DeleteProductCart(c *gin.Context) {
 
 	deleteResult := initializers.DB.Delete(&cart, cartid)
 
-	if deleteResult == nil {
+	if deleteResult.Error != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "Failed to delete product",
+			"error": "Failed to delete cart",
 		})
 		return
 	}
 
-	c.Status(200)
+	c.JSON(http.StatusOK, gin.H{
+		"message": "checkout deleted",
+	})
+
 }

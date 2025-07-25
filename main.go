@@ -28,7 +28,10 @@ func main() {
 
 	r.GET("/cart/:cart_id", controllers.GetCart)
 	r.POST("/cart", controllers.CreateCart)
-	r.DELETE("/cart/:cart_id", controllers.DeleteProduct)
+	r.DELETE("/cart/:cart_id", controllers.DeleteProductCart)
+
+	r.POST("/checkout", controllers.CreateCheckout)
+	r.GET("/checkout", controllers.GetCheckout)
 
 	r.Run()
 

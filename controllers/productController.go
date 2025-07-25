@@ -95,14 +95,16 @@ func DeleteProduct(c *gin.Context) {
 
 	deleteResult := initializers.DB.Delete(&product, productid)
 
-	if deleteResult == nil {
+	if deleteResult.Error != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": "Failed to delete product",
 		})
 		return
 	}
 
-	c.Status(200)
+	c.JSON(http.StatusOK, gin.H{
+		"message": "checkout deleted",
+	})
 
 }
 

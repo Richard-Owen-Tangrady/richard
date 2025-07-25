@@ -12,7 +12,7 @@ type Cart struct {
 	CreatedAt    time.Time
 }
 
-type CreteCart struct {
+type CartCreateRequest struct {
 	UserRefer    string `json:"user_id"`
 	ProductRefer string `json:"product_id"`
 	Quantity     int    `json:"quantity"`
