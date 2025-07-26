@@ -30,7 +30,7 @@ func GetProduct(c *gin.Context) {
 	productid := c.Param("product_id")
 
 	var product models.Product
-	result := initializers.DB.First(&product, productid)
+	result := initializers.DB.Where("product_id = ?", productid).First(&product)
 
 	if result.Error != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -84,7 +84,7 @@ func DeleteProduct(c *gin.Context) {
 	productid := c.Param("product_id")
 
 	var product models.Product
-	result := initializers.DB.First(&product, productid)
+	result := initializers.DB.Where("product_id = ?", productid).First(&product)
 
 	if result.Error != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -93,7 +93,7 @@ func DeleteProduct(c *gin.Context) {
 		return
 	}
 
-	deleteResult := initializers.DB.Delete(&product, productid)
+	deleteResult := initializers.DB.Where("product_id = ?", productid).Delete(&product)
 
 	if deleteResult.Error != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -103,7 +103,7 @@ func DeleteProduct(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"message": "checkout deleted",
+		"message": "product deleted",
 	})
 
 }
@@ -120,7 +120,7 @@ func UpdateProduct(c *gin.Context) {
 	}
 
 	var product models.Product
-	result := initializers.DB.First(&product, productid)
+	result := initializers.DB.Where("product_id = ?", productid).First(&product)
 
 	if result.Error != nil {
 		c.JSON(http.StatusBadRequest, gin.H{

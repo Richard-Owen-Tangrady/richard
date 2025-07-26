@@ -14,7 +14,7 @@ func GetCart(c *gin.Context) {
 	cartid := c.Param("cart_id")
 
 	var cart models.Cart
-	result := initializers.DB.First(&cart, cartid)
+	result := initializers.DB.Where("cart_id = ?", cartid).First(&cart)
 
 	if result.Error != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -83,20 +83,20 @@ func CreateCart(c *gin.Context) {
 
 }
 
-func DeleteProductCart(c *gin.Context) {
+func DeleteCart(c *gin.Context) {
 	cartid := c.Param("cart_id")
 
 	var cart models.Cart
-	result := initializers.DB.First(&cart, cartid)
+	result := initializers.DB.Where("cart_id = ?", cartid).First(&cart)
 
 	if result.Error != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "Failed to create cart",
+			"error": "Failed to find cart",
 		})
 		return
 	}
 
-	deleteResult := initializers.DB.Delete(&cart, cartid)
+	deleteResult := initializers.DB.Where("cart_id =?", cartid).Delete(&cart)
 
 	if deleteResult.Error != nil {
 		c.JSON(http.StatusBadRequest, gin.H{

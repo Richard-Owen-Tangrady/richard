@@ -56,7 +56,7 @@ func GetCheckout(c *gin.Context) {
 	checkoutid := c.Param("checkout_id")
 
 	var checkout models.Checkout
-	result := initializers.DB.Find(&checkout, checkoutid)
+	result := initializers.DB.Preload("Product").Where("checkout_id = ?", checkoutid).First(&checkout)
 
 	if result.Error != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -75,7 +75,7 @@ func DeleteCheckout(c *gin.Context) {
 	checkoutid := c.Param("checkout_id")
 
 	var checkout models.Checkout
-	result := initializers.DB.Find(&checkout, checkoutid)
+	result := initializers.DB.Where("checkout_id = ?", checkoutid).Find(&checkout)
 
 	if result.Error != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -84,7 +84,7 @@ func DeleteCheckout(c *gin.Context) {
 		return
 	}
 
-	deleteresult := initializers.DB.Delete(&checkout, checkoutid)
+	deleteresult := initializers.DB.Where("checkout_id = ?", checkoutid).Delete(&checkout)
 
 	if deleteresult.Error != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
